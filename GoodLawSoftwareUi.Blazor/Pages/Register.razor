@@ -1,0 +1,81 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using GoodLawSoftwareUi.Blazor.Models
+@inject HttpClient httpClient
+@inject NavigationManager UriHelper
+@page "/Register"
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+<DataAnnotationsValidator/>
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudCard>
+            <MudCardContent>
+                <MudTextField Label="User name" HelperText="Max. 8 characters"
+                              @bind-Value="model.Username" For="@(() => model.Username)"/>
+                <MudTextField Label="First name" HelperText="Max. 8 characters"
+                              @bind-Value="model.FisrtName" For="@(() => model.FisrtName)"/>
+                <MudTextField Label="Last name" HelperText="Max. 8 characters"
+                              @bind-Value="model.LastName" For="@(() => model.LastName)"/>
+                <MudTextField Label="Email" Class="mt-3"
+                              @bind-Value="model.Email" For="@(() => model.Email)"/>
+                <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                              @bind-Value="model.Password" For="@(() => model.Password)" InputType="InputType.Password"/>
+                <MudTextField Label="Password" HelperText="Repeat the password" Class="mt-3"
+                              @bind-Value="model.Password2" For="@(() => model.Password2)" InputType="InputType.Password"/>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Register</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="5">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">Validation Summary</MudText>
+            @if (success)
+            {
+                <MudText Color="Color.Success">Success</MudText>
+            }
+            else
+            {
+                <MudText Color="@Color.Error">
+                    <ValidationSummary />
+                </MudText>
+            }
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudText Typo="Typo.body2" Align="Align.Center">
+            Fill out the form correctly to see the success message.
+        </MudText>
+    </MudItem>
+</MudGrid>
+</EditForm>
+
+
+@code {
+    RegisterAccountModel model = new RegisterAccountModel();
+    bool success;
+    private string errorMessage;
+    private User _user;
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        using var response = await httpClient
+                                .PostAsJsonAsync("api/User",model);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            // set error message for display, log to console and return
+            errorMessage = response.ReasonPhrase;
+            Console.WriteLine($"There was an error! {errorMessage}");
+            return;
+        }
+
+        // convert response data to Article object
+        _user = await response.Content.ReadFromJsonAsync<User>();
+        success = true;
+        UriHelper.NavigateTo("/users");
+        StateHasChanged();
+    }
+
+}

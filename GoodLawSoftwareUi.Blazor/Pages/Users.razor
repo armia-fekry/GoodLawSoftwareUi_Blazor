@@ -3,7 +3,7 @@
 @inject HttpClient httpClient
 @page "/Users"
 
-<MudDataGrid T="User" Items="@Users.Take(5)" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
+<MudDataGrid T="User" Items="@_Users.Take(5)" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
     StartedEditingItem="@StartedEditingItem" CancelledEditingItem="@CancelledEditingItem" CommittedItemChanges="@CommittedItemChanges"
     Bordered="false" Dense="false" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)">
     <Columns>
@@ -55,7 +55,7 @@
 </MudExpansionPanels>
 
 @code {
-    private IEnumerable<User> Users = new List<User>();
+    private IEnumerable<User> _Users = new List<User>();
     private bool _readOnly;
     private bool _isCellEditMode;
     private List<string> _events = new();
@@ -80,7 +80,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        Users = await httpClient.GetFromJsonAsync<IEnumerable<User>>("api/Users");
+        _Users = await httpClient.GetFromJsonAsync<IEnumerable<User>>("api/Users");
     }
 
     // events
